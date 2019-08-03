@@ -1,0 +1,103 @@
+﻿<Window x:Class="XIVLauncher.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:xaml="clr-namespace:XIVLauncher.Xaml"
+        xmlns:components="clr-namespace:XIVLauncher.Xaml.Components"
+        mc:Ignorable="d"
+        Title="XIVLauncherLite Settings" Height="311.675" Width="567" WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/Resources/dalamud_icon.ico" ResizeMode="NoResize" Closing="SettingsWindow_OnClosing"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto">
+    <Window.Resources>
+        <xaml:StringToColorConverter x:Key="StringToColorConverter"/>
+    </Window.Resources>
+    <Grid>
+        <dragablz:TabablzControl IsEnabled="True" FixedHeaderCount="6" x:Name="SetupTabControl" Style="{StaticResource MaterialDesignTabablzControlStyle}">
+            <TabItem Header="Game">
+                <StackPanel Margin="10,10,0,0">
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource MaterialDesignBody}">
+                        Please select the folder your game is installed in.
+                        <LineBreak/>
+                        It should contain the folders "game" and "boot".
+                    </TextBlock>
+                    <components:FolderEntry x:Name="GamePathEntry" Description="Select a folder" Width="400" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,5,0,0"/>
+                    <CheckBox Foreground="{DynamicResource MaterialDesignBody}" x:Name="SteamIntegrationCheckBox" Margin="0,15,0,0">Enable Steam integration</CheckBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="DirectX">
+                <StackPanel Margin="10,10,0,0">
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource MaterialDesignBody}">
+                        Please select which DirectX version you want to use.
+                    </TextBlock>
+
+                    <RadioButton Margin="0, 5, 0, 0" GroupName="dx" IsChecked="True" x:Name="Dx11RadioButton" Foreground="{DynamicResource MaterialDesignBody}">DirectX 11</RadioButton>
+                    <RadioButton GroupName="dx" Foreground="{DynamicResource MaterialDesignBody}">DirectX 9</RadioButton>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Language">
+                <Grid>
+                    <StackPanel Margin="10,10,10,0">
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource MaterialDesignBody}">
+                            Please select which language you want to load the game with.
+                        </TextBlock>
+
+                        <ComboBox SelectedIndex="1" Margin="0, 5, 0, 0" x:Name="LanguageComboBox" Foreground="{DynamicResource MaterialDesignBody}">
+                            <ComboBoxItem>Japanese</ComboBoxItem>
+                            <ComboBoxItem>English</ComboBoxItem>
+                            <ComboBoxItem>German</ComboBoxItem>
+                            <ComboBoxItem>French</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="About">
+                <Grid>
+                    <StackPanel Margin="10,10,10,0">
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" x:Name="VersionLabel" Foreground="{DynamicResource MaterialDesignBody}">
+                            FFXIVQuickLauncherLite
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource MaterialDesignBody}">
+                            Made by goat. Trimmed by Marot. Special thanks to Mino, LeonBlade and Roy!
+                            <LineBreak/>
+                        </TextBlock>
+
+                        <Button Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Left"
+                                x:Name="DiscordButton" Click="DiscordButton_OnClick"  Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Discord" />
+                                <TextBlock Margin="8 0 0 0" VerticalAlignment="Center">Join Discord</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Left"
+                                x:Name="GitHubButton" Click="GitHubButton_OnClick" Margin="0 0 0 0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="GithubCircle" />
+                                <TextBlock Margin="8 0 0 0" VerticalAlignment="Center">GitHub</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Left"
+                                x:Name="OriginalLauncherButton" Click="OriginalLauncherButton_OnClick">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Launch" />
+                                <TextBlock Margin="8 0 0 0" VerticalAlignment="Center">Start Original Launcher</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <Image Source="pack://application:,,,/Resources/eye.png" Width="150" HorizontalAlignment="Left" Margin="390,0,0,0" Opacity="0.8" RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Grid>
+            </TabItem>
+        </dragablz:TabablzControl>
+        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                ToolTip="Save Settings" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,10,10" Click="AcceptButton_Click">
+            <materialDesign:PackIcon Kind="Check" Height="24" Width="24" />
+        </Button>
+    </Grid>
+</Window>

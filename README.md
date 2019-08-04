@@ -10,7 +10,7 @@ The original FFXIV launcher is slow, tedious, kinda ugly and cannot save your pa
 
 ## How to install
 
-[Download the latest release from the releases](https://github.com/Mortalitas/FFXIVQuickLauncherLite/releases/latest) page, unzip it into any folder you can easily access it and launch XIVLauncher.exe - then just follow the instructions!
+[Download the latest release from the releases](https://github.com/Mortalitas/FFXIVQuickLauncherLite/releases/latest) page, unzip it into any folder you can easily access it and launch XIVLauncherLite.exe - then just follow the instructions!
 
 <br>
 <br>

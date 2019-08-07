@@ -48,7 +48,7 @@ namespace XIVLauncher.Windows
             }
 
 #if !DEBUG
-/*            AutoUpdater.ShowSkipButton = false;
+            AutoUpdater.ShowSkipButton = false;
             AutoUpdater.ShowRemindLaterButton = false;
             AutoUpdater.Mandatory = true;
             AutoUpdater.UpdateMode = Mode.Forced;
@@ -56,7 +56,7 @@ namespace XIVLauncher.Windows
             AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
 
             Log.Information("Starting update check.");
-            AutoUpdater.Start("https://mortalitas.github.io/ffxiv/ffxivqll/update.xml");*/
+            AutoUpdater.Start("https://mortalitas.github.io/ffxiv/ffxivqll/update.xml");
             InitializeWindow();
 #else
             InitializeWindow();

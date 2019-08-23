@@ -21,7 +21,12 @@ namespace XIVLauncher.Windows
             InitializeComponent();
 
             GamePathEntry.Text = Settings.GetGamePath();
-            Dx11RadioButton.IsChecked = Settings.IsDX11();
+
+            if (Settings.IsDX11())
+                Dx11RadioButton.IsChecked = true;
+            else
+                Dx9RadioButton.IsChecked = true;
+
             LanguageComboBox.SelectedIndex = (int) Settings.GetLanguage();
 
             SteamIntegrationCheckBox.IsChecked = Settings.SteamIntegrationEnabled;

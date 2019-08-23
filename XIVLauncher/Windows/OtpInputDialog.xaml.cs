@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Serilog;
-using XIVLauncher.Http;
 
 namespace XIVLauncher.Windows
 {
@@ -21,24 +20,6 @@ namespace XIVLauncher.Windows
             InitializeComponent();
 
             OtpTextBox.Focus();
-
-            var otpListener = new OtpListener();
-            otpListener.OnOtpReceived += otp =>
-            {
-                Result = otp;
-                otpListener.Stop();
-                Dispatcher.Invoke(Close);
-            };
-
-            try
-            {
-                // Start Listen
-                Task.Run(() => otpListener.Start());
-            }
-            catch(Exception ex)
-            {
-                Log.Error(ex, "Could not start OTP HTTP listener.");
-            }
         }
 
         private void OtpTextBox_OnPreviewTextInput(object sender, TextCompositionEventArgs e)

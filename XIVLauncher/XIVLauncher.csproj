@@ -142,8 +142,6 @@
     <Compile Include="Game\ClientLanguage.cs" />
     <Compile Include="Encryption\ArgumentBuilder.cs" />
     <Compile Include="Encryption\Blowfish.cs" />
-    <Compile Include="Http\HttpServer.cs" />
-    <Compile Include="Http\OtpListener.cs" />
     <Compile Include="Windows\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>

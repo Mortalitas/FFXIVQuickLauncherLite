@@ -43,36 +43,34 @@ namespace XIVLauncher.Game
 
             OauthLoginResult loginResult;
 
-            Log.Information("Cache is invalid or disabled, logging in normally.");
+                try
+                {
+                    loginResult = OauthLogin(username, password, otp);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("OAuth login failed.", ex);
+                    MessageBox.Show(
+                        "Could not login into your Square Enix account.\nThis could be caused by bad credentials or OTPs.\n\nPlease also check your email inbox for any messages from Square Enix - they might want you to reset your password due to \"suspicious activity\".\nThis is NOT caused by a security issue in XIVLauncher, it is merely a safety measure by Square Enix to prevent logins from new locations, in case your account is getting stolen.\nXIVLauncher and the official launcher will work fine again after resetting your password.",
+                        "Login issue", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return null;
+                }
 
-            try
-            {
-                loginResult = OauthLogin(username, password, otp);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("OAuth login failed.", ex);
-                MessageBox.Show(
-                    "Could not login into your Square Enix account.\nThis could be caused by bad credentials or OTPs.\n\nPlease also check your email inbox for any messages from Square Enix - they might want you to reset your password due to \"suspicious activity\".\nThis is NOT caused by a security issue in XIVLauncher, it is merely a safety measure by Square Enix to prevent logins from new locations, in case your account is getting stolen.\nXIVLauncher and the official launcher will work fine again after resetting your password.",
-                    "Login issue", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
+                if (!loginResult.Playable)
+                {
+                    MessageBox.Show("This Square Enix account cannot play FINAL FANTASY XIV.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return null;
+                }
 
-            if (!loginResult.Playable)
-            {
-                MessageBox.Show("This Square Enix account cannot play FINAL FANTASY XIV.", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
+                if (!loginResult.TermsAccepted)
+                {
+                    MessageBox.Show("Please accept the FINAL FANTASY XIV Terms of Use in the official launcher.",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return null;
+                }
 
-            if (!loginResult.TermsAccepted)
-            {
-                MessageBox.Show("Please accept the FINAL FANTASY XIV Terms of Use in the official launcher.",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-
-            (uid, needsUpdate) = Task.Run(() => RegisterSession(loginResult)).Result;
+                (uid, needsUpdate) = Task.Run(() => RegisterSession(loginResult)).Result;
 
             if (needsUpdate)
             {
@@ -101,9 +99,9 @@ namespace XIVLauncher.Game
 
                 var game = new Process();
                 if (Settings.IsDX11())
-                    game.StartInfo.FileName = Settings.GetGamePath() + "/game/ffxiv_dx11.exe";
+                    game.StartInfo.FileName = Settings.GamePath + "/game/ffxiv_dx11.exe";
                 else
-                    game.StartInfo.FileName = Settings.GetGamePath() + "/game/ffxiv.exe";
+                    game.StartInfo.FileName = Settings.GamePath + "/game/ffxiv.exe";
                 game.StartInfo.Arguments =
                     $"DEV.DataPathType=1 DEV.MaxEntitledExpansionID={expansionLevel} DEV.TestSID={sessionId} DEV.UseSqPack=1 SYS.Region={region} language={(int) Settings.GetLanguage()} ver={GetLocalGameVer()}";
 
@@ -124,7 +122,7 @@ namespace XIVLauncher.Game
                 game.StartInfo.Arguments = argumentBuilder.BuildEncrypted(key);
                 */
 
-                game.StartInfo.WorkingDirectory = Path.Combine(Settings.GetGamePath(), "game");
+                game.StartInfo.WorkingDirectory = Path.Combine(Settings.GamePath.FullName, "game");
 
                 game.Start();
                 //Serilog.Log.Information("Starting game process with key ({1}): {0}", argumentBuilder.Build(), key);
@@ -149,7 +147,7 @@ namespace XIVLauncher.Game
                         Thread.Sleep(1000);
                         continue;
                     }
-               
+
                     break;
                 }
 
@@ -171,7 +169,7 @@ namespace XIVLauncher.Game
             for (var i = 0; i < FilesToHash.Length; i++)
             {
                 result +=
-                    $"{FilesToHash[i]}/{GetFileHash(Path.Combine(Settings.GetGamePath(), "boot", FilesToHash[i]))}";
+                    $"{FilesToHash[i]}/{GetFileHash(Path.Combine(Settings.GamePath.FullName, "boot", FilesToHash[i]))}";
 
                 if (i != FilesToHash.Length - 1)
                     result += ",";
@@ -297,7 +295,7 @@ namespace XIVLauncher.Game
         {
             try
             {
-                return File.ReadAllText(Path.Combine(Settings.GetGamePath(), "game", "ffxivgame.ver"));
+                return File.ReadAllText(Path.Combine(Settings.GamePath.FullName, "game", "ffxivgame.ver"));
             }
             catch (Exception exc)
             {
@@ -309,7 +307,7 @@ namespace XIVLauncher.Game
         {
             try
             {
-                return File.ReadAllText(Path.Combine(Settings.GetGamePath(), "boot", "ffxivboot.ver"));
+                return File.ReadAllText(Path.Combine(Settings.GamePath.FullName, "boot", "ffxivboot.ver"));
             }
             catch (Exception exc)
             {

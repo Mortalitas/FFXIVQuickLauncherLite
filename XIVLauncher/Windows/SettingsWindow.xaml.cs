@@ -20,7 +20,7 @@ namespace XIVLauncher.Windows
         {
             InitializeComponent();
 
-            GamePathEntry.Text = Settings.GetGamePath();
+            GamePathEntry.Text = Settings.GamePath.FullName;
 
             if (Settings.IsDX11())
                 Dx11RadioButton.IsChecked = true;
@@ -36,7 +36,7 @@ namespace XIVLauncher.Windows
 
         private void SettingsWindow_OnClosing(object sender, CancelEventArgs e)
         {
-            Settings.SetGamePath(GamePathEntry.Text);
+            Settings.GamePath = new DirectoryInfo(GamePathEntry.Text);
             Settings.SetDx11(Dx11RadioButton.IsChecked == true);
             Settings.SetLanguage((ClientLanguage) LanguageComboBox.SelectedIndex);
 

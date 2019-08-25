@@ -31,6 +31,8 @@ namespace XIVLauncher.Windows
 
             SteamIntegrationCheckBox.IsChecked = Settings.SteamIntegrationEnabled;
 
+            LaunchArgsTextBox.Text = Settings.AdditionalLaunchArgs;
+
             VersionLabel.Text += " - v" + Util.GetAssemblyVersion() + " - " + Util.GetGitHash();
         }
 
@@ -41,6 +43,8 @@ namespace XIVLauncher.Windows
             Settings.SetLanguage((ClientLanguage) LanguageComboBox.SelectedIndex);
 
             Settings.SteamIntegrationEnabled = SteamIntegrationCheckBox.IsChecked == true;
+
+            Settings.AdditionalLaunchArgs = LaunchArgsTextBox.Text;
 
             Settings.Save();
         }

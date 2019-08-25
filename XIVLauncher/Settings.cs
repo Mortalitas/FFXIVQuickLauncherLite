@@ -99,5 +99,10 @@ namespace XIVLauncher
             Properties.Settings.Default.Save();
         }
 
+        public static string AdditionalLaunchArgs
+        {
+            get => Properties.Settings.Default.AdditionalLaunchArgs;
+            set => Properties.Settings.Default.AdditionalLaunchArgs = value;
+        }
     }
 }

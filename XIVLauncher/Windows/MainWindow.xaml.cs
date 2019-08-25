@@ -57,7 +57,6 @@ namespace XIVLauncher.Windows
 
             Log.Information("Starting update check.");
             AutoUpdater.Start("https://mortalitas.github.io/ffxiv/ffxivqll/update.xml");
-            InitializeWindow();
 #else
             InitializeWindow();
 #endif
@@ -199,7 +198,7 @@ namespace XIVLauncher.Windows
             if (Properties.Settings.Default.LastVersion != version)
             {
                 MessageBox.Show(
-                    $"XIVLauncherLite was updated to version {version}. This release features some new features and fixes:\r\n\r\n* Fixed an issue wherein the game path could not be changed in the settings menu",
+                    $"XIVLauncherLite was updated to version {version}. This release features some new features and fixes:\r\n\r\n* Removed the HTTP OTP Listener server, which was missed on initial cleanup.\r\n* Added an option to add custom game launch arguments in the Settings->Game tab.",
                     "XIVLauncherLite updated!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 Properties.Settings.Default.LastVersion = version;
                 Properties.Settings.Default.Save();
@@ -351,7 +350,7 @@ namespace XIVLauncher.Windows
                 }
 
                 var gameProcess = _game.Login(LoginUsername.Text, LoginPassword.Password, otp,
-                    Settings.SteamIntegrationEnabled);
+                    Settings.SteamIntegrationEnabled, Settings.AdditionalLaunchArgs);
 
                 if (gameProcess == null)
                 {
@@ -370,7 +369,6 @@ namespace XIVLauncher.Windows
         }
 
         #endregion
-        
 
         private void BannerCard_MouseUp(object sender, MouseButtonEventArgs e)
         {

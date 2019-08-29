@@ -42,14 +42,14 @@
     </StackPanel>
 
     <StackPanel x:Uid="StackPanel_3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 10 10">
-            <Button Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Left"
+      <Button x:Uid="DiscordButton" Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Left"
                     x:Name="DiscordButton" Margin="0,0,5,0" Click="DiscordButton_OnClick">
-                <StackPanel x:Uid="StackPanel_4" Orientation="Horizontal">
-                    <materialDesign:PackIcon x:Uid="materialDesign:PackIcon_2" Kind="Discord" />
-                    <TextBlock x:Uid="TextBlock_2" Margin="8 0 0 0" VerticalAlignment="Center">Join Discord</TextBlock>
-                </StackPanel>
-            </Button>
-            <Button x:Uid="Button_1" Margin="0,0,0,0" HorizontalAlignment="Right" Click="CloseButton_Click">OK</Button>
+        <StackPanel x:Uid="StackPanel_4" Orientation="Horizontal">
+          <materialDesign:PackIcon x:Uid="materialDesign:PackIcon_2" Kind="Discord" />
+          <TextBlock x:Uid="TextBlock_2" Margin="8 0 0 0" VerticalAlignment="Center">Join Discord</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button x:Uid="Button_1" Margin="0,0,0,0" HorizontalAlignment="Right" Click="CloseButton_Click">OK</Button>
     </StackPanel>
   </Grid>
 </Window>

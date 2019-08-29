@@ -58,7 +58,7 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            
+
             <TabItem x:Uid="TabItem_6" Header="About">
                 <Grid x:Uid="Grid_6">
                     <StackPanel x:Uid="StackPanel_9" Margin="10,10,10,0">

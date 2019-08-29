@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Windows;
+using Newtonsoft.Json;
 using Serilog;
+using XIVLauncher.Game;
 using XIVLauncher.Windows;
 
 namespace XIVLauncher

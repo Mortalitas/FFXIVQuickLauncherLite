@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -159,6 +160,11 @@ namespace XIVLauncher.Windows
 
                 try
                 {
+                    #if DEBUG
+                    HandleLogin(true);
+                    Settings.Save();
+                    return;
+                    #else
                     if (!gateStatus)
                     {
                         MessageBox.Show(
@@ -172,6 +178,7 @@ namespace XIVLauncher.Windows
                         Settings.Save();
                         return;
                     }
+                    #endif
                 }
                 catch (Exception exc)
                 {
@@ -198,7 +205,7 @@ namespace XIVLauncher.Windows
             if (Properties.Settings.Default.LastVersion != version)
             {
                 MessageBox.Show(
-                    $"XIVLauncherLite was updated to version {version}. This release features some new features and fixes:\r\n\r\n* Removed the HTTP OTP Listener server, which was missed on initial cleanup.\r\n* Added an option to add custom game launch arguments in the Settings->Game tab.",
+                    $"XIVLauncherLite was updated to version {version}. This release features some new features and fixes:\r\n\r\n* Added compatibility for SE's new Steam service account policy. If your FFXIV service account is tied to Steam, you must now check the Steam integration checkbox in Settings->Game.",
                     "XIVLauncherLite updated!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 Properties.Settings.Default.LastVersion = version;
                 Properties.Settings.Default.Save();
@@ -338,6 +345,7 @@ namespace XIVLauncher.Windows
                     // ignored
                 }
 
+                #if !DEBUG
                 if (!gateStatus)
                 {
                     Log.Information("GateStatus is false.");
@@ -348,6 +356,7 @@ namespace XIVLauncher.Windows
 
                     return;
                 }
+                #endif
 
                 var gameProcess = _game.Login(LoginUsername.Text, LoginPassword.Password, otp,
                     Settings.SteamIntegrationEnabled, Settings.AdditionalLaunchArgs);
@@ -512,6 +521,11 @@ namespace XIVLauncher.Windows
 
             HandleLogin(false);
             _isLoggingIn = true;
+        }
+
+        private void MainWindow_OnClosed(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

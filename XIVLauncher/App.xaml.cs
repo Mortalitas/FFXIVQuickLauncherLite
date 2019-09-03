@@ -16,6 +16,12 @@ namespace XIVLauncher
     {
         public App()
         {
+            var culture = new System.Globalization.CultureInfo("de-DE");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            var release = $"xivlauncher-{Util.GetAssemblyVersion()}-{Util.GetGitHash()}";
+
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Async(a =>
                     a.File(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -28,7 +34,7 @@ namespace XIVLauncher
                 .CreateLogger();
 
             Log.Information(
-                $"XIVLauncher started with version {Util.GetAssemblyVersion()}, commit {Util.GetGitHash()}");
+                $"XIVLauncher started as {release}");
         }
 
         private void App_OnStartup(object sender, StartupEventArgs e)
@@ -59,7 +65,7 @@ namespace XIVLauncher
             // Check if the accountName parameter is provided, if yes, pass it to MainWindow
             var accountName = "";
 
-            if (e.Args.Length > 0 && e.Args[0].StartsWith("--accountName="))
+            if (e.Args.Length > 0 && e.Args[0].StartsWith("--account="))
                 accountName = e.Args[0].Substring(e.Args[0].IndexOf("=", StringComparison.InvariantCulture) + 1);
             
             Log.Information("Loading MainWindow for account '{0}'", accountName);

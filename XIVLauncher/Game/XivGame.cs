@@ -19,7 +19,7 @@ namespace XIVLauncher.Game
 {
     public class XivGame
     {
-        // The user agent for frontier pages. {0} has to be replaced by a unique computer id and it's checksum
+        // The user agent for frontier pages. {0} has to be replaced by a unique computer id and its checksum
         private static readonly string UserAgentTemplate = "SQEXAuthor/2.0.0(Windows 6.2; ja-jp; {0})";
 
         private readonly string _userAgent = GenerateUserAgent();
@@ -36,20 +36,23 @@ namespace XIVLauncher.Game
             "ffxivupdater64.exe"
         };
 
-        public Process Login(string userName, string password, string otp, bool isSteam, string additionalArguments)
+        public Process Login(string userName, string password, string otp, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments)
         {
             string uid;
             var needsUpdate = false;
 
             OauthLoginResult loginResult;
 
+            Log.Information($"XivGame::Login(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
                 try
                 {
-                    loginResult = OauthLogin(userName, password, otp, isSteam);
+                    loginResult = OauthLogin(userName, password, otp, isSteamServiceAccount);
+
+                    Log.Information($"OAuth login successful - playable:{loginResult.Playable} terms:{loginResult.TermsAccepted} region:{loginResult.Region} expack:{loginResult.MaxExpansion}");
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("OAuth login failed.", ex);
+                    Log.Information(ex, "OAuth login failed.");
                     MessageBox.Show(
                         "Could not login into your Square Enix account.\nThis could be caused by bad credentials or OTPs.\n\nPlease also check your email inbox for any messages from Square Enix - they might want you to reset your password due to \"suspicious activity\".\nThis is NOT caused by a security issue in XIVLauncher, it is merely a safety measure by Square Enix to prevent logins from new locations, in case your account is getting stolen.\nXIVLauncher and the official launcher will work fine again after resetting your password.",
                         "Login issue", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -58,7 +61,7 @@ namespace XIVLauncher.Game
 
                 if (!loginResult.Playable)
                 {
-                    MessageBox.Show("This Square Enix account cannot play FINAL FANTASY XIV.\n\nIf you bought FINAL FANTASY XIV on Steam, make sure to enable Steam integration in Settings->Game.\nIf Auto-Login is enabled, hold shift while starting to access settings.", "Error",
+                    MessageBox.Show("This Square Enix account cannot play FINAL FANTASY XIV.\n\nIf you bought FINAL FANTASY XIV on Steam, make sure to check the \"Use Steam service account\" checkbox while logging in.\nIf Auto-Login is enabled, hold shift while starting to access settings.", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
                 }
@@ -81,15 +84,36 @@ namespace XIVLauncher.Game
                 return null;
             }
 
-            return LaunchGame(uid, loginResult.Region, loginResult.MaxExpansion, isSteam, additionalArguments);
+            return LaunchGame(uid, loginResult.Region, loginResult.MaxExpansion, isSteamIntegrationEnabled, isSteamServiceAccount, additionalArguments);
         }
 
-        private static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteam, string additionalArguments,
+        private static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments,
             bool closeMutants = false)
         {
             try
             {
-                var game = new Process {StartInfo = {UseShellExecute = false}};
+                if (isSteamIntegrationEnabled)
+                {
+                    try
+                    {
+                        SteamNative.Initialize();
+
+                        if (SteamApi.IsSteamRunning() && SteamApi.Initialize(SteamAppId))
+                            Log.Information("Steam initialized.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Could not initialize Steam.");
+                    }
+                }
+
+                var game = new Process {StartInfo =
+                {
+                    UseShellExecute = false,
+                    RedirectStandardError = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false
+                }};
 
                 if (Settings.IsDX11())
                     game.StartInfo.FileName = Settings.GamePath + "/game/ffxiv_dx11.exe";
@@ -100,13 +124,8 @@ namespace XIVLauncher.Game
                     $"DEV.DataPathType=1 DEV.MaxEntitledExpansionID={expansionLevel} DEV.TestSID={sessionId} DEV.UseSqPack=1 SYS.Region={region} language={(int) Settings.GetLanguage()} ver={GetLocalGameVer()}";
                 game.StartInfo.Arguments += " " + additionalArguments;
 
-                if (isSteam)
+                if (isSteamServiceAccount)
                 {
-                    SteamNative.Initialize();
-
-                    if (SteamApi.IsSteamRunning() && SteamApi.Initialize(SteamAppId))
-                        Log.Information("Steam initialized.");
-
                     // These environment variable and arguments seems to be set when ffxivboot is started with "-issteam" (27.08.2019)
                     game.StartInfo.Environment.Add("IS_FFXIV_LAUNCH_FROM_STEAM", "1");
                     game.StartInfo.Arguments += " IsSteam=1";
@@ -133,10 +152,17 @@ namespace XIVLauncher.Game
 
                 game.Start();
 
-                if (isSteam)
+                if (isSteamIntegrationEnabled)
                 {
-                    SteamApi.Uninitialize();
-                    SteamNative.Uninitialize();
+                    try
+                    {
+                        SteamApi.Uninitialize();
+                        SteamNative.Uninitialize();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Could not uninitialize Steam.");
+                    }
                 }
 
                 for (var tries = 0; tries < 30; tries++)
@@ -162,7 +188,7 @@ namespace XIVLauncher.Game
             catch (Exception ex)
             {
                 new ErrorWindow(ex, "Your game path might not be correct. Please check in the settings.",
-                    "XG LaunchGame").Show();
+                    "XG LaunchGame").ShowDialog();
             }
 
             return null;
@@ -283,11 +309,13 @@ namespace XIVLauncher.Game
 
                 var reply = Encoding.UTF8.GetString(response);
 
+                Log.Information(reply);
+
                 var regex = new Regex(@"window.external.user\(""login=auth,ok,(?<launchParams>.*)\);");
                 var matches = regex.Matches(reply);
 
                 if (matches.Count == 0)
-                    throw new Exception("Could not log in to oauth. Result: " + reply);
+                    throw new OauthLoginException("Could not log in to oauth. Result: " + reply);
 
                 var launchParams = matches[0].Groups["launchParams"].Value.Split(',');
 

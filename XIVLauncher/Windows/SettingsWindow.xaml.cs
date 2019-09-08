@@ -25,7 +25,10 @@ namespace XIVLauncher.Windows
             if (Settings.IsDX11())
                 Dx11RadioButton.IsChecked = true;
             else
+            {
                 Dx9RadioButton.IsChecked = true;
+                Dx9DisclaimerTextBlock.Visibility = Visibility.Visible;
+            }
 
             LanguageComboBox.SelectedIndex = (int) Settings.GetLanguage();
 
@@ -67,6 +70,16 @@ namespace XIVLauncher.Windows
         private void DiscordButton_OnClick(object sender, RoutedEventArgs e)
         {
             Process.Start("https://discord.gg/39WpvU2");
+        }
+
+        private void Dx9RadioButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            Dx9DisclaimerTextBlock.Visibility = Visibility.Visible;
+        }
+
+        private void Dx9RadioButton_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            Dx9DisclaimerTextBlock.Visibility = Visibility.Hidden;
         }
     }
 }

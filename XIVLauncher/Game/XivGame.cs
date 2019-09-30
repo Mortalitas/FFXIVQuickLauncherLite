@@ -87,8 +87,7 @@ namespace XIVLauncher.Game
             return LaunchGame(uid, loginResult.Region, loginResult.MaxExpansion, isSteamIntegrationEnabled, isSteamServiceAccount, additionalArguments);
         }
 
-        private static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments,
-            bool closeMutants = false)
+        private static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments)
         {
             try
             {

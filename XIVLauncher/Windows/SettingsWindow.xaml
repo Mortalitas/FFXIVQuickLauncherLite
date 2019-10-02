@@ -7,13 +7,16 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:xaml="clr-namespace:XIVLauncher.Xaml"
         xmlns:components="clr-namespace:XIVLauncher.Xaml.Components"
+        xmlns:properties="clr-namespace:XIVLauncher.Properties"
+        xmlns:windows="clr-namespace:XIVLauncher.Windows"
         mc:Ignorable="d"
         Title="XIVLauncherLite Settings" Height="311.675" Width="567" WindowStartupLocation="CenterScreen"
         Icon="pack://application:,,,/Resources/dalamud_icon.ico" ResizeMode="NoResize" Closing="SettingsWindow_OnClosing"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.FontWeight="Medium"
-        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto">
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+        d:DataContext="{d:DesignInstance windows:SettingsWindow}">
     <Window.Resources>
         <xaml:StringToColorConverter x:Uid="xaml:StringToColorConverter_1" x:Key="StringToColorConverter"/>
     </Window.Resources>
@@ -26,7 +29,7 @@
                         <LineBreak x:Uid="LineBreak_1"/>
                         It should contain the folders "game" and "boot".
                     </TextBlock>
-                    <components:FolderEntry x:Uid="GamePathEntry" x:Name="GamePathEntry" Description="Select a folder" Width="400" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,5,0,0"/>
+                    <components:FolderEntry x:Uid="GamePathEntry" x:Name="GamePathEntry" Text="{Binding GamePath, UpdateSourceTrigger=PropertyChanged}" Description="Select a folder" Width="400" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,5,0,0"/>
                     <CheckBox x:Uid="SteamIntegrationCheckBox" Foreground="{DynamicResource MaterialDesignBody}" x:Name="SteamIntegrationCheckBox" Margin="0,15,0,0">Enable Steam integration</CheckBox>
                     <Label x:Uid="Label_1" Margin="0,10,0,0">Additional launch arguments</Label>
                     <TextBox x:Uid="LaunchArgsTextBox" Width="400" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,5,0,0" x:Name="LaunchArgsTextBox"/>

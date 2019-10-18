@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using AdysTech.CredentialManager;
-using Newtonsoft.Json;
 using XIVLauncher.Game;
 
 namespace XIVLauncher
@@ -28,7 +25,7 @@ namespace XIVLauncher
 
         public static ClientLanguage GetLanguage()
         {
-            return (ClientLanguage) Properties.Settings.Default.Language;
+            return (ClientLanguage)Properties.Settings.Default.Language;
         }
 
         public static void SetLanguage(ClientLanguage language)

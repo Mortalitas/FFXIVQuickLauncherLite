@@ -32,7 +32,8 @@ namespace XIVLauncher.Windows
         private Timer _maintenanceQueueTimer;
 
         private readonly XivGame _game = new XivGame();
-        private readonly AccountManager _accountManager = new AccountManager();
+
+        private AccountManager _accountManager;
 
         private bool _isLoggingIn;
 
@@ -142,19 +143,6 @@ namespace XIVLauncher.Windows
 
             if (!gateStatus) WorldStatusPackIcon.Foreground = new SolidColorBrush(Color.FromRgb(242, 24, 24));
 
-            /*
-            var savedCredentials = CredentialManager.GetCredentials(AppName);
-
-            if (savedCredentials != null)
-            {
-                LoginUsername.Text = savedCredentials.UserName;
-                LoginPassword.Password = savedCredentials.Password;
-                OtpCheckBox.IsChecked = Settings.NeedsOtp();
-                AutoLoginCheckBox.IsChecked = Settings.IsAutologin();
-                SaveLoginCheckBox.IsChecked = true;
-            }
-            */
-
             var version = Util.GetAssemblyVersion();
             if (Properties.Settings.Default.LastVersion != version)
             {
@@ -182,6 +170,8 @@ namespace XIVLauncher.Windows
 
                 Properties.Settings.Default.Save();
             }
+
+            _accountManager = new AccountManager();
 
             var savedAccount = _accountManager.CurrentAccount;
 
@@ -393,12 +383,12 @@ namespace XIVLauncher.Windows
                 }
                 #endif
 
-                var gameProcess = _game.Login(LoginUsername.Text, LoginPassword.Password, otp,
+                var loginResult = _game.Login(LoginUsername.Text, LoginPassword.Password, otp,
                     Settings.SteamIntegrationEnabled, SteamCheckBox.IsChecked == true, Settings.AdditionalLaunchArgs);
 
-                if (gameProcess == null)
+                if (loginResult == null)
                 {
-                    Log.Information("GameProcess was null...");
+                    Log.Information("LoginResult was null...");
                     _isLoggingIn = false;
                     return;
                 }

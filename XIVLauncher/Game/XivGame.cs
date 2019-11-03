@@ -41,14 +41,14 @@ namespace XIVLauncher.Game
             string uid;
             var needsUpdate = false;
 
-            OauthLoginResult loginResult;
+            OauthLoginResult oauthLoginResult;
 
             Log.Information($"XivGame::Login(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
                 try
                 {
-                    loginResult = OauthLogin(userName, password, otp, isSteamServiceAccount);
+                    oauthLoginResult = OauthLogin(userName, password, otp, isSteamServiceAccount);
 
-                    Log.Information($"OAuth login successful - playable:{loginResult.Playable} terms:{loginResult.TermsAccepted} region:{loginResult.Region} expack:{loginResult.MaxExpansion}");
+                    Log.Information($"OAuth login successful - playable:{oauthLoginResult.Playable} terms:{oauthLoginResult.TermsAccepted} region:{oauthLoginResult.Region} expack:{oauthLoginResult.MaxExpansion}");
                 }
                 catch (Exception ex)
                 {
@@ -59,21 +59,21 @@ namespace XIVLauncher.Game
                     return null;
                 }
 
-                if (!loginResult.Playable)
+                if (!oauthLoginResult.Playable)
                 {
                     MessageBox.Show("This Square Enix account cannot play FINAL FANTASY XIV.\n\nIf you bought FINAL FANTASY XIV on Steam, make sure to check the \"Use Steam service account\" checkbox while logging in.\nIf Auto-Login is enabled, hold shift while starting to access settings.", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
                 }
 
-                if (!loginResult.TermsAccepted)
+                if (!oauthLoginResult.TermsAccepted)
                 {
                     MessageBox.Show("Please accept the FINAL FANTASY XIV Terms of Use in the official launcher.",
                         "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
                 }
 
-                (uid, needsUpdate) = Task.Run(() => RegisterSession(loginResult)).Result;
+                (uid, needsUpdate) = Task.Run(() => RegisterSession(oauthLoginResult)).Result;
 
             if (needsUpdate)
             {
@@ -84,11 +84,13 @@ namespace XIVLauncher.Game
                 return null;
             }
 
-            return LaunchGame(uid, loginResult.Region, loginResult.MaxExpansion, isSteamIntegrationEnabled, isSteamServiceAccount, additionalArguments);
+            return LaunchGame(uid, oauthLoginResult.Region, oauthLoginResult.MaxExpansion, isSteamIntegrationEnabled, isSteamServiceAccount, additionalArguments);
         }
 
-        private static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments)
+        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments)
         {
+            Log.Information($"XivGame::LaunchGame(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
+
             try
             {
                 if (isSteamIntegrationEnabled)
@@ -247,7 +249,7 @@ namespace XIVLauncher.Game
                         {
                             // Conflict indicates that boot needs to update, we do not get a patch list or a unique ID to download patches with in this case
                             if (response.StatusCode == HttpStatusCode.Conflict)
-                                return ("", true);
+                                throw new Exception("Cannot verify Game version, Boot is outdated.");
                         }
                         else
                         {
@@ -278,7 +280,7 @@ namespace XIVLauncher.Game
             }
         }
 
-        internal class OauthLoginResult
+        public class OauthLoginResult
         {
             public string SessionId { get; set; }
             public int Region { get; set; }

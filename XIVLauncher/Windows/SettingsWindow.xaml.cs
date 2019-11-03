@@ -21,12 +21,6 @@ namespace XIVLauncher.Windows
         private string gamePath;
 
         /// <summary>
-        /// Gets a value indicating whether the "Run Integrity Checks" button is enabled.
-        /// </summary>
-        public bool IsRunIntegrityCheckPossible =>
-            !string.IsNullOrEmpty(GamePath) && Directory.Exists(GamePath);
-
-        /// <summary>
         /// Gets or sets the path to the game folder.
         /// </summary>
         public string GamePath
@@ -36,7 +30,6 @@ namespace XIVLauncher.Windows
             {
                 gamePath = value;
                 OnPropertyChanged(nameof(GamePath));
-                OnPropertyChanged(nameof(IsRunIntegrityCheckPossible));
             }
         }
 

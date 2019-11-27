@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using XIVLauncher.Game;
@@ -82,6 +83,11 @@ namespace XIVLauncher
         {
             get => Properties.Settings.Default.AdditionalLaunchArgs;
             set => Properties.Settings.Default.AdditionalLaunchArgs = value;
+        }
+
+        public static void StartOfficialLauncher()
+        {
+            Process.Start(Path.Combine(GamePath.FullName, "boot", "ffxivboot.exe"));
         }
     }
 }

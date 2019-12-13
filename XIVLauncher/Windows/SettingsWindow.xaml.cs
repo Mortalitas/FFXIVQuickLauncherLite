@@ -81,7 +81,10 @@ namespace XIVLauncher.Windows
 
         private void OriginalLauncherButton_OnClick(object sender, RoutedEventArgs e)
         {
-            Settings.StartOfficialLauncher();
+            var isSteam =
+                MessageBox.Show("Launch as a steam user?", "XIVLauncher", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes;
+            Settings.StartOfficialLauncher(isSteam);
         }
 
         private void DiscordButton_OnClick(object sender, RoutedEventArgs e)

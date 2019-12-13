@@ -85,9 +85,9 @@ namespace XIVLauncher
             set => Properties.Settings.Default.AdditionalLaunchArgs = value;
         }
 
-        public static void StartOfficialLauncher()
+        public static void StartOfficialLauncher(bool isSteam)
         {
-            Process.Start(Path.Combine(GamePath.FullName, "boot", "ffxivboot.exe"));
+            Process.Start(Path.Combine(GamePath.FullName, "boot", "ffxivboot.exe"), isSteam ? "-issteam" : string.Empty);
         }
     }
 }

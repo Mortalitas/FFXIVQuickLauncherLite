@@ -293,7 +293,7 @@ namespace XIVLauncher.Windows
         private void HandleLogin(bool autoLogin)
         {
 
-            if (_accountManager.CurrentAccount != null && _accountManager.CurrentAccount.Password != LoginPassword.Password && _accountManager.CurrentAccount.SavePassword)
+            if (_accountManager.CurrentAccount != null && _accountManager.CurrentAccount.UserName.Equals(LoginUsername.Text) && _accountManager.CurrentAccount.Password != LoginPassword.Password && _accountManager.CurrentAccount.SavePassword)
             {
                 _accountManager.UpdatePassword(_accountManager.CurrentAccount, LoginPassword.Password);
             }

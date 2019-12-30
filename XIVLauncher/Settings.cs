@@ -8,10 +8,8 @@ using XIVLauncher.Game;
 
 namespace XIVLauncher
 {
-    class Settings
+    public class Settings
     {
-        public Action LanguageChanged;
-
         #region Launcher Setting
         public DirectoryInfo GamePath { get; set; }
         public bool IsDx11 { get; set; }
@@ -21,26 +19,7 @@ namespace XIVLauncher
         public bool CharacterSyncEnabled { get; set; }
         public string AdditionalLaunchArgs { get; set; }
         public bool SteamIntegrationEnabled { get; set; }
-
-        
-        private ClientLanguage _internalLang;
-        [JsonIgnore]
-        public ClientLanguage Language
-        {
-            return Properties.Settings.Default.IsDx11;
-        }
-            get => _internalLang;
-            set
-            {
-                if (_internalLang != value)
-                    LanguageChanged?.Invoke();
-
-        public static void SetDx11(bool value)
-        {
-            Properties.Settings.Default.IsDx11 = value;
-                _internalLang = value;
-            }
-        }
+        public ClientLanguage Language { get; set; }
 
         public static bool IsAutologin()
         {
@@ -54,18 +33,12 @@ namespace XIVLauncher
         }
         #region SaveLoad
 
-        public static bool NeedsOtp()
-        {
-            return Properties.Settings.Default.NeedsOtp;
-        }
-
         public static void SetNeedsOtp(bool value)
         {
             Properties.Settings.Default.NeedsOtp = value;
         }
         private static readonly string ConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XIVLauncher", "launcherConfig.json");
 
-        public static bool SteamIntegrationEnabled
         public void Save()
         {
             get => Properties.Settings.Default.SteamIntegrationEnabled;
@@ -79,10 +52,17 @@ namespace XIVLauncher
 
         public static Settings Load()
         {
-            return JsonConvert.DeserializeObject<Settings>(File.ReadAllText(ConfigPath), new JsonSerializerSettings
+            if (!File.Exists(ConfigPath))
+                return new Settings();
+
+            var setting = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(ConfigPath), new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects
             });
+
+            setting.AddonList = EnsureDefaultAddon(setting.AddonList);
+
+            return setting;
         }
 
         #endregion

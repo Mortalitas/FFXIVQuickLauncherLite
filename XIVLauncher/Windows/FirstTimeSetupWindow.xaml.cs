@@ -11,9 +11,13 @@ namespace XIVLauncher.Windows
     /// </summary>
     public partial class FirstTimeSetup : Window
     {
-        public FirstTimeSetup()
+        public Settings Result;
+
+        public FirstTimeSetup(Settings setting)
         {
             InitializeComponent();
+
+            Result = setting;
 
             var detectedPath = Util.TryGamePaths();
 
@@ -58,11 +62,13 @@ namespace XIVLauncher.Windows
 
             if (SetupTabControl.SelectedIndex == 1)
             {
-                Settings.GamePath = new DirectoryInfo(GamePathEntry.Text);
-                Settings.SetDx11(Dx11RadioButton.IsChecked == true);
-                Settings.SetLanguage((ClientLanguage) LanguageComboBox.SelectedIndex);
+                Result.GamePath = new DirectoryInfo(GamePathEntry.Text);
+                Result.IsDx11 = Dx11RadioButton.IsChecked == true;
+                Result.Language = (ClientLanguage) LanguageComboBox.SelectedIndex;
+                Result.InGameAddonEnabled = HooksCheckBox.IsChecked == true;
+                Result.SteamIntegrationEnabled = SteamCheckBox.IsChecked == true;
 
-                Settings.Save();
+                Result.Save();
                 Close();
             }
 

@@ -33,13 +33,18 @@ namespace XIVLauncher.Windows
             }
         }
 
-        public SettingsWindow()
+        private Settings _setting;
+
+        public SettingsWindow(Settings setting)
         {
             InitializeComponent();
-            DataContext = this;
-            GamePath = Settings.GamePath?.FullName;
 
-            if (Settings.IsDX11())
+            _setting = setting;
+
+            DataContext = this;
+            GamePath = _setting.GamePath?.FullName;
+
+            if (_setting.IsDx11)
                 Dx11RadioButton.IsChecked = true;
             else
             {
@@ -47,26 +52,29 @@ namespace XIVLauncher.Windows
                 Dx9DisclaimerTextBlock.Visibility = Visibility.Visible;
             }
 
-            LanguageComboBox.SelectedIndex = (int) Settings.GetLanguage();
+            LanguageComboBox.SelectedIndex = (int) _setting.Language;
 
-            SteamIntegrationCheckBox.IsChecked = Settings.SteamIntegrationEnabled;
+            SteamIntegrationCheckBox.IsChecked = _setting.SteamIntegrationEnabled;
 
-            LaunchArgsTextBox.Text = Settings.AdditionalLaunchArgs;
+            LaunchArgsTextBox.Text = _setting.AdditionalLaunchArgs;
 
             VersionLabel.Text += " - v" + Util.GetAssemblyVersion() + " - " + Util.GetGitHash() + " - " + Environment.Version;
         }
 
         private void SettingsWindow_OnClosing(object sender, CancelEventArgs e)
         {
-            Settings.GamePath = !string.IsNullOrEmpty(GamePath) ? new DirectoryInfo(GamePath) : null;
-            Settings.SetDx11(Dx11RadioButton.IsChecked == true);
-            Settings.SetLanguage((ClientLanguage) LanguageComboBox.SelectedIndex);
+            _setting.GamePath = !string.IsNullOrEmpty(GamePath) ? new DirectoryInfo(GamePath) : null;
+            _setting.IsDx11 = Dx11RadioButton.IsChecked == true;
+            _setting.Language = (ClientLanguage) LanguageComboBox.SelectedIndex;
 
             Settings.SteamIntegrationEnabled = SteamIntegrationCheckBox.IsChecked == true;
 
-            Settings.AdditionalLaunchArgs = LaunchArgsTextBox.Text;
+            _setting.SteamIntegrationEnabled = SteamIntegrationCheckBox.IsChecked == true;
 
-            Settings.Save();
+
+            _setting.AdditionalLaunchArgs = LaunchArgsTextBox.Text;
+
+            _setting.Save();
         }
 
         private void AcceptButton_Click(object sender, RoutedEventArgs e)
@@ -84,7 +92,7 @@ namespace XIVLauncher.Windows
             var isSteam =
                 MessageBox.Show("Launch as a steam user?", "XIVLauncher", MessageBoxButton.YesNo,
                     MessageBoxImage.Question) == MessageBoxResult.Yes;
-            Settings.StartOfficialLauncher(isSteam);
+            _setting.StartOfficialLauncher(isSteam);
         }
 
         private void DiscordButton_OnClick(object sender, RoutedEventArgs e)

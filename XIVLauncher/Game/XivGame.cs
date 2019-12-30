@@ -36,14 +36,14 @@ namespace XIVLauncher.Game
             "ffxivupdater64.exe"
         };
 
-        public Process Login(string userName, string password, string otp, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments)
+        public Process Login(string userName, string password, string otp, bool isSteamServiceAccount, string additionalArguments)
         {
             string uid;
             var needsUpdate = false;
 
             OauthLoginResult oauthLoginResult;
 
-            Log.Information($"XivGame::Login(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
+            Log.Information($"XivGame::Login(steamServiceAccount:{isSteamServiceAccount})");
                 try
                 {
                     oauthLoginResult = OauthLogin(userName, password, otp, isSteamServiceAccount);
@@ -90,7 +90,7 @@ namespace XIVLauncher.Game
             return LaunchGame(uid, oauthLoginResult.Region, oauthLoginResult.MaxExpansion, isSteamIntegrationEnabled, isSteamServiceAccount, additionalArguments);
         }
 
-        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments)
+        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments, DirectoryInfo gamePath, bool isDx11, ClientLanguage language)
         {
             Log.Information($"XivGame::LaunchGame(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
 
@@ -119,13 +119,13 @@ namespace XIVLauncher.Game
                     RedirectStandardOutput = false
                 }};
 
-                if (Settings.IsDX11())
-                    game.StartInfo.FileName = Settings.GamePath + "/game/ffxiv_dx11.exe";
+                if (isDx11)
+                    game.StartInfo.FileName = gamePath + "/game/ffxiv_dx11.exe";
                 else
-                    game.StartInfo.FileName = Settings.GamePath + "/game/ffxiv.exe";
+                    game.StartInfo.FileName = gamePath + "/game/ffxiv.exe";
 
                 game.StartInfo.Arguments =
-                    $"DEV.DataPathType=1 DEV.MaxEntitledExpansionID={expansionLevel} DEV.TestSID={sessionId} DEV.UseSqPack=1 SYS.Region={region} language={(int) Settings.GetLanguage()} ver={GetLocalGameVer()}";
+                    $"DEV.DataPathType=1 DEV.MaxEntitledExpansionID={expansionLevel} DEV.TestSID={sessionId} DEV.UseSqPack=1 SYS.Region={region} language={(int) language} ver={GetLocalGameVer(gamePath)}";
                 game.StartInfo.Arguments += " " + additionalArguments;
 
                 if (isSteamServiceAccount)
@@ -152,7 +152,7 @@ namespace XIVLauncher.Game
                 game.StartInfo.Arguments = argumentBuilder.BuildEncrypted(key);
                 */
 
-                game.StartInfo.WorkingDirectory = Path.Combine(Settings.GamePath.FullName, "game");
+                game.StartInfo.WorkingDirectory = Path.Combine(gamePath.FullName, "game");
 
                 game.Start();
 
@@ -203,14 +203,14 @@ namespace XIVLauncher.Game
         /// This same hash is also sent in lobby, but for ffxiv.exe and ffxiv_dx11.exe.
         /// </summary>
         /// <returns>String of hashed EXE files.</returns>
-        private static string GetBootVersionHash()
+        private static string GetBootVersionHash(DirectoryInfo gamePath)
         {
             var result = "";
 
             for (var i = 0; i < FilesToHash.Length; i++)
             {
                 result +=
-                    $"{FilesToHash[i]}/{GetFileHash(Path.Combine(Settings.GamePath.FullName, "boot", FilesToHash[i]))}";
+                    $"{FilesToHash[i]}/{GetFileHash(Path.Combine(gamePath.FullName, "boot", FilesToHash[i]))}";
 
                 if (i != FilesToHash.Length - 1)
                     result += ",";
@@ -219,6 +219,7 @@ namespace XIVLauncher.Game
             return result;
         }
 
+        private static (string Uid, LoginState result, PatchListEntry[] PendingGamePatches) RegisterSession(OauthLoginResult loginResult, DirectoryInfo gamePath)
         private static (string Uid, bool NeedsUpdate) RegisterSession(OauthLoginResult loginResult)
         {
             using (var client = new WebClient())
@@ -230,11 +231,11 @@ namespace XIVLauncher.Game
                 client.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 
                 var url =
-                    $"https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{GetLocalGameVer()}/{loginResult.SessionId}";
+                    $"https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{GetLocalGameVer(gamePath)}/{loginResult.SessionId}";
 
                 try
                 {
-                    var result = client.UploadString(url, GetBootVersionHash());
+                    var result = client.UploadString(url, GetBootVersionHash(gamePath));
 
                     // Get the unique ID needed to authenticate with the lobby server
                     if (client.ResponseHeaders.AllKeys.Contains("X-Patch-Unique-Id"))
@@ -332,11 +333,11 @@ namespace XIVLauncher.Game
             }
         }
 
-        public static string GetLocalGameVer()
+        public static string GetLocalGameVer(DirectoryInfo gamePath)
         {
             try
             {
-                return File.ReadAllText(Path.Combine(Settings.GamePath.FullName, "game", "ffxivgame.ver"));
+                return File.ReadAllText(Path.Combine(gamePath.FullName, "game", "ffxivgame.ver"));
             }
             catch (Exception exc)
             {
@@ -344,11 +345,11 @@ namespace XIVLauncher.Game
             }
         }
 
-        public static string GetLocalBootVer()
+        public static string GetLocalBootVer(DirectoryInfo gamePath)
         {
             try
             {
-                return File.ReadAllText(Path.Combine(Settings.GamePath.FullName, "boot", "ffxivboot.ver"));
+                return File.ReadAllText(Path.Combine(gamePath.FullName, "boot", "ffxivboot.ver"));
             }
             catch (Exception exc)
             {
@@ -374,7 +375,7 @@ namespace XIVLauncher.Game
             {
                 var reply = Encoding.UTF8.GetString(
                     DownloadAsLauncher(
-                        $"https://frontier.ffxiv.com/worldStatus/gate_status.json?{Util.GetUnixMillis()}"));
+                        $"https://frontier.ffxiv.com/worldStatus/gate_status.json?{Util.GetUnixMillis()}", ClientLanguage.English));
 
                 return Convert.ToBoolean(int.Parse(reply[10].ToString()));
             }
@@ -402,20 +403,20 @@ namespace XIVLauncher.Game
             }
         }
 
-        public byte[] DownloadAsLauncher(string url)
+        public byte[] DownloadAsLauncher(string url, ClientLanguage language)
         {
             using (var client = new WebClient())
             {
                 client.Headers.Add("User-Agent", _userAgent);
-                client.Headers.Add(HttpRequestHeader.Referer, GenerateFrontierReferer());
+                client.Headers.Add(HttpRequestHeader.Referer, GenerateFrontierReferer(language));
 
                 return client.DownloadData(url);
             }
         }
 
-        private static string GenerateFrontierReferer()
+        private static string GenerateFrontierReferer(ClientLanguage language)
         {
-            var langCode = Settings.GetLanguage().GetLangCode();
+            var langCode = language.GetLangCode();
             var formattedTime = DateTime.UtcNow.ToString("yyyy-MM-dd-HH");
 
             return $"https://frontier.ffxiv.com/version_5_0_win/index.html?rc_lang={langCode}&time={formattedTime}";

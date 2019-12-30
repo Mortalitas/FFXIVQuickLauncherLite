@@ -14,6 +14,8 @@ using MaterialDesignThemes.Wpf;
 using Serilog;
 using XIVLauncher.Accounts;
 using XIVLauncher.Game;
+using XIVLauncher.Game.Patch;
+using XIVLauncher.Settings;
 using Timer = System.Timers.Timer;
 
 namespace XIVLauncher.Windows
@@ -36,7 +38,7 @@ namespace XIVLauncher.Windows
 
         private bool _isLoggingIn;
 
-        private Settings _setting = Settings.Load();
+        private LauncherSettings _setting = LauncherSettings.Load();
 
         public MainWindow(string accountName)
         {

@@ -149,6 +149,7 @@
     <Compile Include="Encryption\ArgumentBuilder.cs" />
     <Compile Include="Encryption\Blowfish.cs" />
     <Compile Include="Game\OauthLoginException.cs" />
+	<Compile Include="Settings\OldSettings.cs" />
     <Compile Include="Windows\ChangelogWindow.xaml.cs">
       <DependentUpon>ChangelogWindow.xaml</DependentUpon>
     </Compile>
@@ -176,7 +177,7 @@
     <Compile Include="Windows\PatchHandlerWindow.xaml.cs">
       <DependentUpon>PatchHandlerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="Settings\Settings.cs" />
     <Compile Include="Windows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>

@@ -87,10 +87,10 @@ namespace XIVLauncher.Game
                 return null;
             }
 
-            return LaunchGame(uid, oauthLoginResult.Region, oauthLoginResult.MaxExpansion, isSteamIntegrationEnabled, isSteamServiceAccount, additionalArguments);
+            return LaunchGame(uid, oauthLoginResult.Region, oauthLoginResult.MaxExpansion, isSteamServiceAccount, additionalArguments, gamePath, isDx11, language);
         }
 
-        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments, DirectoryInfo gamePath, bool isDx11, ClientLanguage language)
+        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamServiceAccount, string additionalArguments, DirectoryInfo gamePath, bool isDx11, ClientLanguage language)
         {
             Log.Information($"XivGame::LaunchGame(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
 

@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using XIVLauncher.Game;
+using XIVLauncher.Settings;
 
 namespace XIVLauncher.Windows
 {
@@ -33,9 +34,9 @@ namespace XIVLauncher.Windows
             }
         }
 
-        private Settings _setting;
+        private LauncherSettings _setting;
 
-        public SettingsWindow(Settings setting)
+        public SettingsWindow(LauncherSettings setting)
         {
             InitializeComponent();
 

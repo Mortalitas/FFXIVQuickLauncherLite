@@ -495,6 +495,7 @@ namespace XIVLauncher.Windows
 
         private void MainWindow_OnClosed(object sender, EventArgs e)
         {
+            _setting.Save();
             Application.Current.Shutdown();
         }
 

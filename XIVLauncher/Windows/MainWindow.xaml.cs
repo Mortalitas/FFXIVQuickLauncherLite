@@ -145,7 +145,7 @@ namespace XIVLauncher.Windows
                 Properties.Settings.Default.Save();
             }
 
-            _accountManager = new AccountManager();
+            _accountManager = new AccountManager(_setting);
 
             var savedAccount = _accountManager.CurrentAccount;
 
@@ -243,7 +243,7 @@ namespace XIVLauncher.Windows
 
                 _accountManager.AddAccount(accountToSave);
 
-                Properties.Settings.Default.CurrentAccount = accountToSave.Id;
+                _accountManager.CurrentAccount = accountToSave;
             }
 
             if (!autoLogin)

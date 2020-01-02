@@ -20,6 +20,7 @@ namespace XIVLauncher.Settings
         public string AdditionalLaunchArgs { get; set; }
         public bool SteamIntegrationEnabled { get; set; }
         public ClientLanguage Language { get; set; }
+        public string CurrentAccountId { get; set; }
 
         public static bool IsAutologin()
         {

@@ -79,12 +79,6 @@ namespace XIVLauncher
             }
         }
 
-        public static bool IsAdministrator()
-        {
-            return new WindowsPrincipal(WindowsIdentity.GetCurrent())
-                .IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
         public static int GetUnixMillis()
         {
             return (int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
@@ -105,46 +99,48 @@ namespace XIVLauncher
             return new SolidColorBrush(ColorFromArgb(argb));
         }
 
-        // https://stackoverflow.com/questions/10454519/best-way-to-compare-two-complex-objects
-        public static bool DeepCompare(this object obj, object another)
+        private static Dictionary<int, string> _classJobFontDict = new Dictionary<int, string>
         {
-            if (ReferenceEquals(obj, another)) return true;
-            if (obj == null || another == null) return false;
-            //Compare two object's class, return false if they are difference
-            if (obj.GetType() != another.GetType()) return false;
+            { 1, "\uF001" },
+            { 2, "\uF002" },
+            { 3, "\uF003" },
+            { 4, "\uF004" },
+            { 5, "\uF005" },
+            { 6, "\uF006" },
+            { 7, "\uF007" },
+            { 8, "\uF008" },
+            { 9, "\uF009" },
+            { 10, "\uF010" },
+            { 11, "\uF011" },
+            { 12, "\uF012" },
+            { 13, "\uF013" },
+            { 14, "\uF014" },
+            { 15, "\uF015" },
+            { 16, "\uF016" },
+            { 17, "\uF017" },
+            { 18, "\uF018" },
+            { 19, "\uF019" },
+            { 20, "\uF020" },
+            { 21, "\uF021" },
+            { 22, "\uF022" },
+            { 23, "\uF023" },
+            { 24, "\uF024" },
+            { 25, "\uF025" },
+            { 26, "\uF026" },
+            { 27, "\uF027" },
+            { 28, "\uF028" },
+            { 29, "\uF029" },
+            { 30, "\uF030" },
+            { 31, "\uF031" },
+            { 32, "\uF032" },
+            { 33, "\uF033" },
+            { 34, "\uF034" },
+            { 35, "\uF035" },
+            { 36, "\uF036" },
+            { 37, "\uF037" },
+            { 38, "\uF038" }
+        };
 
-            var result = true;
-            //Get all properties of obj
-            //And compare each other
-            foreach (var property in obj.GetType().GetProperties())
-            {
-                var objValue = property.GetValue(obj);
-                var anotherValue = property.GetValue(another);
-                if (!objValue.Equals(anotherValue)) result = false;
-            }
-
-            return result;
-        }
-
-        public static bool CompareEx(this object obj, object another)
-        {
-            if (ReferenceEquals(obj, another)) return true;
-            if (obj == null || another == null) return false;
-            if (obj.GetType() != another.GetType()) return false;
-
-            //properties: int, double, DateTime, etc, not class
-            if (!obj.GetType().IsClass) return obj.Equals(another);
-
-            var result = true;
-            foreach (var property in obj.GetType().GetProperties())
-            {
-                var objValue = property.GetValue(obj);
-                var anotherValue = property.GetValue(another);
-                //Recursion
-                if (!objValue.DeepCompare(anotherValue)) result = false;
-            }
-
-            return result;
-        }
+        public static string ClassJobToIcon(int classJob) => _classJobFontDict[classJob];
     }
 }

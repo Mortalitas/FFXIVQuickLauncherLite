@@ -43,7 +43,11 @@ namespace XIVLauncher.Windows
         {
             InitializeComponent();
 
+#if !XL_NOAUTOUPDATE
             Title += " v" + Util.GetAssemblyVersion();
+#else
+            Title += " " + Util.GetGitHash();
+#endif
 
             if (!string.IsNullOrEmpty(accountName))
             {
@@ -51,7 +55,7 @@ namespace XIVLauncher.Windows
             }
 
 #if XL_NOAUTOUPDATE
-            Title += " UNSUPPORTED VERSION - NO UPDATES - COULD DO BAD THINGS";
+            Title += " - UNSUPPORTED VERSION - NO UPDATES - COULD DO BAD THINGS";
 #endif
 
             InitializeWindow();

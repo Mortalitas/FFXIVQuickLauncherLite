@@ -78,7 +78,11 @@
                             </TextBlock>
                             <TextBlock x:Uid="TextBlock_8" HorizontalAlignment="Left" VerticalAlignment="Top"
                                        Foreground="{DynamicResource MaterialDesignBody}">
-                                Made by goat. Trimmed by Marot. Special thanks to Mino, sky, LeonBlade, Roy, Meli, Aida-Enna, and the angry paissa artist!!
+                                Made by goat. Trimmed by Marot
+                                <LineBreak x:Uid="LineBreak_6"/> 
+                                Special thanks to Mino, sky, LeonBlade,
+                                <LineBreak x:Uid="LineBreak_4" />
+                                 Roy, Meli, Aida-Enna and the angry paissa artist!
                             </TextBlock>
 
                             <Button x:Uid="DiscordButton" Style="{DynamicResource MaterialDesignFlatButton}"

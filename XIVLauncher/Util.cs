@@ -1,14 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Security.Principal;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Win32;
-using XIVLauncher.Game;
 
 namespace XIVLauncher
 {
@@ -99,7 +98,7 @@ namespace XIVLauncher
             return new SolidColorBrush(ColorFromArgb(argb));
         }
 
-        private static Dictionary<int, string> _classJobFontDict = new Dictionary<int, string>
+        private readonly static Dictionary<int, string> _classJobFontDict = new Dictionary<int, string>
         {
             { 1, "\uF001" },
             { 2, "\uF002" },

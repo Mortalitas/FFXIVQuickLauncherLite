@@ -1,19 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using AutoUpdaterDotNET;
 using MaterialDesignThemes.Wpf;
 using Serilog;
 using XIVLauncher.Accounts;
 using XIVLauncher.Game;
-using XIVLauncher.Game.Patch;
 using XIVLauncher.Settings;
 using Timer = System.Timers.Timer;
 
@@ -43,22 +41,26 @@ namespace XIVLauncher.Windows
         {
             InitializeComponent();
 
-#if !XL_NOAUTOUPDATE
             Title += " v" + Util.GetAssemblyVersion();
-#else
-            Title += " " + Util.GetGitHash();
-#endif
 
             if (!string.IsNullOrEmpty(accountName))
             {
                 Properties.Settings.Default.CurrentAccount = accountName;
             }
 
-#if XL_NOAUTOUPDATE
-            Title += " - UNSUPPORTED VERSION - NO UPDATES - COULD DO BAD THINGS";
-#endif
+#if !DEBUG
+            AutoUpdater.ShowSkipButton = false;
+            AutoUpdater.ShowRemindLaterButton = false;
+            AutoUpdater.Mandatory = true;
+            AutoUpdater.UpdateMode = Mode.Forced;
 
+            AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
+
+            Log.Information("Starting update check.");
+            AutoUpdater.Start("https://mortalitas.github.io/ffxiv/ffxivqll/update.xml");
+#else
             InitializeWindow();
+#endif
         }
 
         private void SetupHeadlines()
@@ -210,11 +212,59 @@ namespace XIVLauncher.Windows
 
             Task.Run(() => SetupHeadlines());
 
-
             Show();
             Activate();
 
             Log.Information("MainWindow initialized.");
+        }
+
+        private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+        {
+            Log.Information("AutoUpdaterOnCheckForUpdateEvent called.");
+            if (args != null)
+            {
+                if (args.IsUpdateAvailable)
+                {
+                    try
+                    {
+                        Log.Information("Update available, trying to download.");
+                        MessageBox.Show(
+                            "An update for XIVLauncherLite is available. It will now be downloaded, the application will restart.",
+                            "XIVLauncher Update", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+
+                        if (AutoUpdater.DownloadUpdate())
+                        {
+                            Process.GetCurrentProcess().Kill();
+                            Environment.Exit(0);
+                        }
+                        else
+                        {
+                            Util.ShowError("Could not download update. Please try again later.", "Update failed");
+                            Process.GetCurrentProcess().Kill();
+                            Environment.Exit(0);
+                        }
+                    }
+                    catch (Exception exc)
+                    {
+                        new ErrorWindow(exc, $"Update failed. Please report this error and try again later. \n\n{exc}",
+                            "UpdateAvailableFail").ShowDialog();
+                        Process.GetCurrentProcess().Kill();
+                        Environment.Exit(0);
+                    }
+                }
+                else
+                {
+                    Log.Information("No update: {0}", args.CurrentVersion);
+                    InitializeWindow();
+                }
+            }
+            else
+            {
+                Util.ShowError("Could not check for updates. Please try again later.", "Update failed");
+                Log.Error("Update check failed.");
+                Process.GetCurrentProcess().Kill();
+                Environment.Exit(0);
+            }
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
@@ -313,16 +363,19 @@ namespace XIVLauncher.Windows
                 if (!gateStatus)
                 {
                     Log.Information("GateStatus is false.");
-                    MessageBox.Show(
-                        "Square Enix seems to be running maintenance work right now or the login server is unreachable. The game shouldn't be launched.",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    var startLauncher = MessageBox.Show(
+                                             "Square Enix seems to be running maintenance work right now. The game shouldn't be launched. Do you want to start the official launcher to check for patches?", "XIVLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+                    if (startLauncher)
+                        _setting.StartOfficialLauncher(SteamCheckBox.IsChecked == true);
+
                     _isLoggingIn = false;
 
                     return;
                 }
 #endif
 
-                var loginResult = _game.Login(LoginUsername.Text, LoginPassword.Password, otp, SteamCheckBox.IsChecked == true, _setting.AdditionalLaunchArgs);
+                var loginResult = _game.Login(LoginUsername.Text, LoginPassword.Password, otp, SteamCheckBox.IsChecked == true, _setting.GamePath);
 
                 if (loginResult == null)
                 {
@@ -339,7 +392,45 @@ namespace XIVLauncher.Windows
                     return;
                 }
 
-                Environment.Exit(0);
+                if (loginResult.State != XivGame.LoginState.Ok)
+                {
+                    var msgBoxResult = MessageBox.Show(
+                        "Your game is out of date. Please start the official launcher and update it before trying to log in. Do you want to start the official launcher?",
+                        "Out of date", MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+                    if (msgBoxResult == MessageBoxResult.Yes)
+                        _setting.StartOfficialLauncher(SteamCheckBox.IsChecked == true);
+
+                    return;
+                }
+
+                var gameProcess = XivGame.LaunchGame(loginResult.UniqueId, loginResult.OauthLogin.Region,
+                    loginResult.OauthLogin.MaxExpansion, _setting.SteamIntegrationEnabled,
+                    SteamCheckBox.IsChecked == true, _setting.AdditionalLaunchArgs, _setting.GamePath, _setting.IsDx11, _setting.Language);
+
+                if (gameProcess == null)
+                {
+                    Log.Information("GameProcess was null...");
+                    _isLoggingIn = false;
+                    return;
+                }
+
+
+
+                this.Close();
+                
+                var watchThread = new Thread(() =>
+                {
+                    while (!gameProcess.HasExited)
+                    {
+                        gameProcess.Refresh();
+                        Thread.Sleep(1);
+                    }
+
+                    Log.Information("Game has exited.");
+                    Environment.Exit(0);
+                });
+                watchThread.Start();
             }
             catch (Exception ex)
             {

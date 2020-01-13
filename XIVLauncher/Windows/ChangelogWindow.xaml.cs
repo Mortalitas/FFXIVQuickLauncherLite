@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Media;
 using System.Net;
 using System.Windows;
-using System.Windows.Documents;
 using Newtonsoft.Json;
 
 namespace XIVLauncher.Windows

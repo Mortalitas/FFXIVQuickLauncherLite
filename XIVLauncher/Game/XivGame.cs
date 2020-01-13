@@ -13,6 +13,7 @@ using System.Windows;
 using Serilog;
 using SteamworksSharp;
 using SteamworksSharp.Native;
+using XIVLauncher.Game.Patch.PatchList;
 using XIVLauncher.Windows;
 
 namespace XIVLauncher.Game
@@ -36,12 +37,30 @@ namespace XIVLauncher.Game
             "ffxivupdater64.exe"
         };
 
-        public Process Login(string userName, string password, string otp, bool isSteamServiceAccount, string additionalArguments)
+        public enum LoginState
+        {
+            Unknown,
+            Ok,
+            NeedsPatchGame,
+            NeedsPatchBoot
+        }
+
+        public class LoginResult
+        {
+            public LoginState State { get; set; }
+            public PatchListEntry[] PendingPatches { get; set; }
+            public OauthLoginResult OauthLogin { get; set; }
+            public string UniqueId { get; set; }
+        }
+
+        public LoginResult Login(string userName, string password, string otp, bool isSteamServiceAccount, DirectoryInfo gamePath)
         {
             string uid;
-            var needsUpdate = false;
+            PatchListEntry[] pendingPatches = null;
 
             OauthLoginResult oauthLoginResult;
+
+            LoginState loginState;
 
             Log.Information($"XivGame::Login(steamServiceAccount:{isSteamServiceAccount})");
                 try
@@ -73,24 +92,19 @@ namespace XIVLauncher.Game
                     return null;
                 }
 
-                (uid, needsUpdate) = Task.Run(() => RegisterSession(oauthLoginResult)).Result;
+                (uid, loginState, pendingPatches) = Task.Run(() => RegisterSession(oauthLoginResult, gamePath)).Result;
 
-            if (needsUpdate)
+
+            return new LoginResult
             {
-                var msgBoxResult = MessageBox.Show(
-                    "Your game is out of date. Please start the official launcher and update it before trying to log in. Do you want to start the official launcher?",
-                    "Out of date", MessageBoxButton.YesNo, MessageBoxImage.Error);
-
-                if (msgBoxResult == MessageBoxResult.Yes)
-                    Settings.StartOfficialLauncher(isSteamServiceAccount);
-
-                return null;
-            }
-
-            return LaunchGame(uid, oauthLoginResult.Region, oauthLoginResult.MaxExpansion, isSteamServiceAccount, additionalArguments, gamePath, isDx11, language);
+                PendingPatches = pendingPatches,
+                OauthLogin = oauthLoginResult,
+                State = loginState,
+                UniqueId = uid
+            };
         }
 
-        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamServiceAccount, string additionalArguments, DirectoryInfo gamePath, bool isDx11, ClientLanguage language)
+        public static Process LaunchGame(string sessionId, int region, int expansionLevel, bool isSteamIntegrationEnabled, bool isSteamServiceAccount, string additionalArguments, DirectoryInfo gamePath, bool isDx11, ClientLanguage language)
         {
             Log.Information($"XivGame::LaunchGame(steamIntegration:{isSteamIntegrationEnabled}, steamServiceAccount:{isSteamServiceAccount}, args:{additionalArguments})");
 
@@ -220,7 +234,6 @@ namespace XIVLauncher.Game
         }
 
         private static (string Uid, LoginState result, PatchListEntry[] PendingGamePatches) RegisterSession(OauthLoginResult loginResult, DirectoryInfo gamePath)
-        private static (string Uid, bool NeedsUpdate) RegisterSession(OauthLoginResult loginResult)
         {
             using (var client = new WebClient())
             {
@@ -242,7 +255,14 @@ namespace XIVLauncher.Game
                     {
                         var sid = client.ResponseHeaders["X-Patch-Unique-Id"];
 
-                        return (sid, result != string.Empty);
+                        if (result == string.Empty) 
+                            return (sid, LoginState.Ok, null);
+
+                        Log.Verbose("Patching is needed... List:\n" + result);
+
+                        var pendingPatches = PatchListParser.Parse(result);
+
+                        return (sid, LoginState.NeedsPatchGame, pendingPatches);
                     }
                 }
                 catch (WebException exc)
@@ -253,7 +273,7 @@ namespace XIVLauncher.Game
                         {
                             // Conflict indicates that boot needs to update, we do not get a patch list or a unique ID to download patches with in this case
                             if (response.StatusCode == HttpStatusCode.Conflict)
-                                throw new Exception("Cannot verify Game version, Boot is outdated.");
+                                return (null, LoginState.NeedsPatchBoot, null);
                         }
                         else
                         {

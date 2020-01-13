@@ -1,8 +1,6 @@
-﻿
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using XIVLauncher.Game;
@@ -12,6 +10,7 @@ namespace XIVLauncher.Settings
     public class LauncherSettings
     {
         #region Launcher Setting
+
         public DirectoryInfo GamePath { get; set; }
         public bool IsDx11 { get; set; }
         public bool AutologinEnabled { get; set; }
@@ -23,23 +22,11 @@ namespace XIVLauncher.Settings
         public ClientLanguage Language { get; set; }
         public string CurrentAccountId { get; set; }
 
-        public static bool IsAutologin()
-        {
-            return Properties.Settings.Default.AutoLogin;
-        }
         #endregion
 
-        public static void SetAutologin(bool value)
-        {
-            Properties.Settings.Default.AutoLogin = value;
-        }
         #region SaveLoad
 
-        public static void SetNeedsOtp(bool value)
-        {
-            Properties.Settings.Default.NeedsOtp = value;
-        }
-        private static readonly string ConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XIVLauncher", "launcherConfig.json");
+        private static readonly string ConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XIVLauncherLite", "launcherConfig.json");
 
         public void Save()
         {
@@ -64,8 +51,6 @@ namespace XIVLauncher.Settings
             {
                 TypeNameHandling = TypeNameHandling.Objects
             });
-
-            setting.AddonList = EnsureDefaultAddon(setting.AddonList);
 
             Log.Information("Loaded LauncherSettings at {0}", ConfigPath);
 

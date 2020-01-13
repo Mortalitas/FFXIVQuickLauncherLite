@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using XIVLauncher.Game;
 using XIVLauncher.Settings;
 
@@ -68,10 +63,7 @@ namespace XIVLauncher.Windows
             _setting.IsDx11 = Dx11RadioButton.IsChecked == true;
             _setting.Language = (ClientLanguage) LanguageComboBox.SelectedIndex;
 
-            Settings.SteamIntegrationEnabled = SteamIntegrationCheckBox.IsChecked == true;
-
             _setting.SteamIntegrationEnabled = SteamIntegrationCheckBox.IsChecked == true;
-
 
             _setting.AdditionalLaunchArgs = LaunchArgsTextBox.Text;
 
@@ -91,7 +83,7 @@ namespace XIVLauncher.Windows
         private void OriginalLauncherButton_OnClick(object sender, RoutedEventArgs e)
         {
             var isSteam =
-                MessageBox.Show("Launch as a steam user?", "XIVLauncher", MessageBoxButton.YesNo,
+                MessageBox.Show("Launch as a steam user?", "XIVLauncherLite", MessageBoxButton.YesNo,
                     MessageBoxImage.Question) == MessageBoxResult.Yes;
             _setting.StartOfficialLauncher(isSteam);
         }

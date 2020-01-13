@@ -26,7 +26,7 @@ namespace XIVLauncher.Windows
 
 #if XL_NOAUTOUPDATE
             MessageBox.Show(
-                "You're running an unsupported version of XIVLauncher.\n\nThis can be unsafe and a danger to your SE account. If you have not gotten this unsupported version on purpose, please reinstall a clean version from https://github.com/Mortalitas/FFXIVQuickLauncherLite/releases.",
+                "You're running an unsupported version of XIVLauncherLite.\n\nThis can be unsafe and a danger to your SE account. If you have not gotten this unsupported version on purpose, please reinstall a clean version from https://github.com/Mortalitas/FFXIVQuickLauncherLite/releases.",
                 "XIVLauncherLite Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #endif
         }
@@ -72,7 +72,6 @@ namespace XIVLauncher.Windows
                 Result.GamePath = new DirectoryInfo(GamePathEntry.Text);
                 Result.IsDx11 = Dx11RadioButton.IsChecked == true;
                 Result.Language = (ClientLanguage) LanguageComboBox.SelectedIndex;
-                Result.InGameAddonEnabled = HooksCheckBox.IsChecked == true;
                 Result.SteamIntegrationEnabled = SteamCheckBox.IsChecked == true;
 
                 Result.Save();

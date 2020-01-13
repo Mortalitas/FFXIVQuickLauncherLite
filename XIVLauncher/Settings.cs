@@ -1,62 +1,58 @@
-﻿using System;
+﻿
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using XIVLauncher.Game;
 
 namespace XIVLauncher
 {
-    // TODO: All of this needs a rework
-    static class Settings
+    class Settings
     {
-        public static Action LanguageChanged;
+        public Action LanguageChanged;
 
-        public static DirectoryInfo GamePath
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(Properties.Settings.Default.GamePath))
-                    return null;
+        #region Launcher Setting
+        public DirectoryInfo GamePath { get; set; }
+        public bool IsDx11 { get; set; }
+        public bool AutologinEnabled { get; set; }
+        public bool NeedsOtp { get; set; }
 
-                return new DirectoryInfo(Properties.Settings.Default.GamePath);
-            }
-            set => Properties.Settings.Default.GamePath = value?.FullName;
-        }
+        public bool CharacterSyncEnabled { get; set; }
+        public string AdditionalLaunchArgs { get; set; }
+        public bool SteamIntegrationEnabled { get; set; }
 
-        public static ClientLanguage GetLanguage()
-        {
-            return (ClientLanguage)Properties.Settings.Default.Language;
-        }
-
-        public static void SetLanguage(ClientLanguage language)
-        {
-            int previousLanguage = Properties.Settings.Default.Language;
-            Properties.Settings.Default.Language = (int)language;
-
-            if (previousLanguage != (int)language)
-                LanguageChanged?.Invoke();
-        }
-
-        public static bool IsDX11()
+        
+        private ClientLanguage _internalLang;
+        [JsonIgnore]
+        public ClientLanguage Language
         {
             return Properties.Settings.Default.IsDx11;
         }
+            get => _internalLang;
+            set
+            {
+                if (_internalLang != value)
+                    LanguageChanged?.Invoke();
 
         public static void SetDx11(bool value)
         {
             Properties.Settings.Default.IsDx11 = value;
+                _internalLang = value;
+            }
         }
 
         public static bool IsAutologin()
         {
             return Properties.Settings.Default.AutoLogin;
         }
+        #endregion
 
         public static void SetAutologin(bool value)
         {
             Properties.Settings.Default.AutoLogin = value;
         }
+        #region SaveLoad
 
         public static bool NeedsOtp()
         {
@@ -67,27 +63,37 @@ namespace XIVLauncher
         {
             Properties.Settings.Default.NeedsOtp = value;
         }
+        private static readonly string ConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XIVLauncher", "launcherConfig.json");
 
         public static bool SteamIntegrationEnabled
+        public void Save()
         {
             get => Properties.Settings.Default.SteamIntegrationEnabled;
             set => Properties.Settings.Default.SteamIntegrationEnabled = value;
+            File.WriteAllText(ConfigPath,  JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+            }));
         }
 
-        public static void Save()
+        public static Settings Load()
         {
-            Properties.Settings.Default.Save();
+            return JsonConvert.DeserializeObject<Settings>(File.ReadAllText(ConfigPath), new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            });
         }
 
-        public static string AdditionalLaunchArgs
-        {
-            get => Properties.Settings.Default.AdditionalLaunchArgs;
-            set => Properties.Settings.Default.AdditionalLaunchArgs = value;
-        }
+        #endregion
 
-        public static void StartOfficialLauncher(bool isSteam)
+        #region Misc
+
+        public void StartOfficialLauncher(bool isSteam)
         {
             Process.Start(Path.Combine(GamePath.FullName, "boot", "ffxivboot.exe"), isSteam ? "-issteam" : string.Empty);
         }
+
+        #endregion
     }
 }

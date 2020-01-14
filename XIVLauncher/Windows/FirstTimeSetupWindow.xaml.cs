@@ -23,38 +23,6 @@ namespace XIVLauncher.Windows
             var detectedPath = Util.TryGamePaths();
 
             if (detectedPath != null) GamePathEntry.Text = detectedPath;
-
-#if XL_NOAUTOUPDATE
-            MessageBox.Show(
-                "You're running an unsupported version of XIVLauncherLite.\n\nThis can be unsafe and a danger to your SE account. If you have not gotten this unsupported version on purpose, please reinstall a clean version from https://github.com/Mortalitas/FFXIVQuickLauncherLite/releases.",
-                "XIVLauncherLite Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-#endif
-        }
-
-        private string FindAct()
-        {
-            try
-            {
-                var parentKey =
-                    Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall");
-
-                var nameList = parentKey.GetSubKeyNames();
-                foreach (var name in nameList)
-                {
-                    var regKey = parentKey.OpenSubKey(name);
-
-                    var value = regKey.GetValue("DisplayName");
-                    if (value != null && value.ToString() == "Advanced Combat Tracker (remove only)")
-                        return Path.GetDirectoryName(regKey.GetValue("UninstallString").ToString()
-                            .Replace("\"", string.Empty));
-                }
-
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
         }
 
         private void NextButton_Click(object sender, RoutedEventArgs e)

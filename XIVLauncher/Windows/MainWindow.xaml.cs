@@ -176,7 +176,7 @@ namespace XIVLauncher.Windows
                     if (!gateStatus)
                     {
                         var startLauncher = MessageBox.Show(
-                            "Square Enix seems to be running maintenance work right now. The game shouldn't be launched. Do you want to start the official launcher to check for patches?", "XIVLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+                            "Square Enix seems to be running maintenance work right now. The game shouldn't be launched. Do you want to start the official launcher to check for patches?", "XIVLauncherLite", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
                         if (startLauncher)
                             _setting.StartOfficialLauncher(SteamCheckBox.IsChecked == true);
@@ -230,7 +230,7 @@ namespace XIVLauncher.Windows
                         Log.Information("Update available, trying to download.");
                         MessageBox.Show(
                             "An update for XIVLauncherLite is available. It will now be downloaded, the application will restart.",
-                            "XIVLauncher Update", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                            "XIVLauncherLite Update", MessageBoxButton.OK, MessageBoxImage.Asterisk);
 
                         if (AutoUpdater.DownloadUpdate())
                         {
@@ -364,7 +364,7 @@ namespace XIVLauncher.Windows
                 {
                     Log.Information("GateStatus is false.");
                     var startLauncher = MessageBox.Show(
-                                             "Square Enix seems to be running maintenance work right now. The game shouldn't be launched. Do you want to start the official launcher to check for patches?", "XIVLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+                                             "Square Enix seems to be running maintenance work right now. The game shouldn't be launched. Do you want to start the official launcher to check for patches?", "XIVLauncherLite", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
                     if (startLauncher)
                         _setting.StartOfficialLauncher(SteamCheckBox.IsChecked == true);

@@ -148,7 +148,7 @@ namespace XIVLauncher.Windows
 
             if (!string.IsNullOrEmpty(selectedEntry.Account.ThumbnailUrl))
             {
-                var thumbnailDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XIVLauncher", "profileIcons");
+                var thumbnailDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "XIVLauncherLite", "profileIcons");
                 Directory.CreateDirectory(thumbnailDirectory);
 
                 thumbnailPath = Path.Combine(thumbnailDirectory, $"{selectedEntry.Account.Id}.ico");
@@ -159,9 +159,9 @@ namespace XIVLauncher.Windows
             var shDesktop = (object)"Desktop";
 
             var shell = new WshShell();
-            var shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + $@"\XIVLauncher - {selectedEntry.Account.UserName} {(selectedEntry.Account.UseSteamServiceAccount ? "(Steam)" : "")}.lnk";
+            var shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + $@"\XIVLauncherLite - {selectedEntry.Account.UserName} {(selectedEntry.Account.UseSteamServiceAccount ? "(Steam)" : "")}.lnk";
             var shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-            shortcut.Description = $"Open XIVLauncher with the {selectedEntry.Account.UserName} Square Enix account.";
+            shortcut.Description = $"Open XIVLauncherLite with the {selectedEntry.Account.UserName} Square Enix account.";
             shortcut.TargetPath = Path.Combine(Environment.CurrentDirectory, "XIVLauncherLite.exe");
             shortcut.Arguments = $"--account={selectedEntry.Account.Id}";
             shortcut.WorkingDirectory = Environment.CurrentDirectory;

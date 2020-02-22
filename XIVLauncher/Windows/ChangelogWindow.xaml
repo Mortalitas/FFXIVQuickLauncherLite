@@ -19,7 +19,7 @@
         TextWrapping="Wrap"
         x:Name="IntroTextBlock"
         Foreground="{DynamicResource MaterialDesignBody}">
-        XIVLauncher was updated to version 
+        XIVLauncherLite was updated to version 
       </TextBlock>
 
         <StackPanel

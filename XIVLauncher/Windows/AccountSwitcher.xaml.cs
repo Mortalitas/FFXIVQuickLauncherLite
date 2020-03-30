@@ -162,7 +162,7 @@ namespace XIVLauncher.Windows
             var shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + $@"\XIVLauncherLite - {selectedEntry.Account.UserName} {(selectedEntry.Account.UseSteamServiceAccount ? "(Steam)" : "")}.lnk";
             var shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
             shortcut.Description = $"Open XIVLauncherLite with the {selectedEntry.Account.UserName} Square Enix account.";
-            shortcut.TargetPath = Path.Combine(Environment.CurrentDirectory, "XIVLauncherLite.exe");
+            shortcut.TargetPath = Path.Combine(new DirectoryInfo(Environment.CurrentDirectory).Parent.FullName, "XIVLauncherLite.exe");
             shortcut.Arguments = $"--account={selectedEntry.Account.Id}";
             shortcut.WorkingDirectory = Environment.CurrentDirectory;
             shortcut.IconLocation = thumbnailPath;

@@ -22,14 +22,21 @@ namespace XIVLauncher.Windows
             ExceptionTextBox.AppendText("\n" + Util.GetAssemblyVersion());
             ExceptionTextBox.AppendText("\n" + Util.GetGitHash());
             ExceptionTextBox.AppendText("\nContext: " + context);
-            ExceptionTextBox.AppendText("\n" + Environment.OSVersion);
+            ExceptionTextBox.AppendText("\nOS: " + Environment.OSVersion);
             ExceptionTextBox.AppendText("\n" + Environment.Is64BitProcess);
-            ExceptionTextBox.AppendText("\n" + setting.IsDx11);
-            ExceptionTextBox.AppendText("\n" + setting.AutologinEnabled);
-            ExceptionTextBox.AppendText("\n" + setting.AutologinEnabled);
-            ExceptionTextBox.AppendText("\n" + setting.Language);
 
-            #if DEBUG
+            if (setting != null)
+            {
+                ExceptionTextBox.AppendText("\nDX11? " + setting.IsDx11);
+                ExceptionTextBox.AppendText("\nAuto Login Enabled? " + setting.AutologinEnabled);
+                ExceptionTextBox.AppendText("\nLanguage: " + setting.Language);
+                ExceptionTextBox.AppendText("\nGame path: " + setting.GamePath);
+
+                // When this happens we probably don't want them to run into it again, in case it's an issue with a moved game for example
+                setting.AutologinEnabled = false;
+            }
+
+#if DEBUG
             ExceptionTextBox.AppendText("\nDebugging");
 #endif
 

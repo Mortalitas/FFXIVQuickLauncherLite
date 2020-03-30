@@ -13,6 +13,7 @@ using System.Windows;
 using Serilog;
 using SteamworksSharp;
 using SteamworksSharp.Native;
+using XIVLauncher.Encryption;
 using XIVLauncher.Game.Patch.PatchList;
 using XIVLauncher.Windows;
 
@@ -142,29 +143,30 @@ namespace XIVLauncher.Game
                     $"DEV.DataPathType=1 DEV.MaxEntitledExpansionID={expansionLevel} DEV.TestSID={sessionId} DEV.UseSqPack=1 SYS.Region={region} language={(int) language} ver={GetLocalGameVer(gamePath)}";
                 game.StartInfo.Arguments += " " + additionalArguments;
 
-                if (isSteamServiceAccount)
-                {
-                    // These environment variable and arguments seems to be set when ffxivboot is started with "-issteam" (27.08.2019)
-                    game.StartInfo.Environment.Add("IS_FFXIV_LAUNCH_FROM_STEAM", "1");
-                    game.StartInfo.Arguments += " IsSteam=1";
-                }
-
-                /*
                 var ticks = (uint) Environment.TickCount;
                 var key = ticks & 0xFFF0_0000;
 
                 var argumentBuilder = new ArgumentBuilder()
-                    .Append("T", ticks.ToString())
                     .Append("DEV.DataPathType", "1")
                     .Append("DEV.MaxEntitledExpansionID", expansionLevel.ToString())
                     .Append("DEV.TestSID", sessionId)
                     .Append("DEV.UseSqPack", "1")
                     .Append("SYS.Region", region.ToString())
-                    .Append("language", ((int) Settings.GetLanguage()).ToString())
-                    .Append("ver", GetLocalGameVer());
+                    .Append("language", ((int)language).ToString())
+                    .Append("ver", GetLocalGameVer(gamePath));
 
-                game.StartInfo.Arguments = argumentBuilder.BuildEncrypted(key);
-                */
+                if (isSteamServiceAccount)
+                {
+                    // These environment variable and arguments seems to be set when ffxivboot is started with "-issteam" (27.08.2019)
+                    game.StartInfo.Environment.Add("IS_FFXIV_LAUNCH_FROM_STEAM", "1");
+                    argumentBuilder.Append("IsSteam", "1");
+                }
+
+                // This is a bit of a hack; ideally additionalArguments would be a dictionary or some KeyValue structure
+                var regex = new Regex(@"\s*(?<key>[^=]+)\s*=\s*(?<value>[^\s]+)\s*", RegexOptions.Compiled);
+                foreach (Match match in regex.Matches(additionalArguments))
+                    argumentBuilder.Append(match.Groups["key"].Value, match.Groups["value"].Value);
+
 
                 game.StartInfo.WorkingDirectory = Path.Combine(gamePath.FullName, "game");
 

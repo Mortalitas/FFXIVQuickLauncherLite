@@ -41,7 +41,7 @@ namespace XIVLauncher.Windows
         {
             InitializeComponent();
 
-            NewsListView.ItemsSource = new List<News>
+            NewsListView.ItemsSource = new System.Collections.Generic.List<News>
             {
                 new News
                 {
@@ -482,45 +482,40 @@ namespace XIVLauncher.Windows
             if (_headlines == null)
                 return;
 
-            if (NewsListView.SelectedItem is News item)
+            if (!(NewsListView.SelectedItem is News item)) 
+                return;
+
+            if (!string.IsNullOrEmpty(item.Url))
             {
-                if (item.Url != string.Empty)
+                Process.Start(item.Url);
+            }
+            else
+            {
+                string url;
+                switch (_setting.Language)
                 {
-                    Process.Start(item.Url);
+                    case ClientLanguage.Japanese:
+                        url = "https://jp.finalfantasyxiv.com/lodestone/news/detail/";
+                        break;
+
+                    case ClientLanguage.English:
+                        url = "https://eu.finalfantasyxiv.com/lodestone/news/detail/";
+                        break;
+
+                    case ClientLanguage.German:
+                        url = "https://de.finalfantasyxiv.com/lodestone/news/detail/";
+                        break;
+
+                    case ClientLanguage.French:
+                        url = "https://fr.finalfantasyxiv.com/lodestone/news/detail/";
+                        break;
+
+                    default:
+                        url = "https://eu.finalfantasyxiv.com/lodestone/news/detail/";
+                        break;
                 }
-                else
-                {
-                    string url;
-                    switch (_setting.Language)
-                    {
-                        case ClientLanguage.Japanese:
 
-                            url = "https://jp.finalfantasyxiv.com/lodestone/news/detail/";
-                            break;
-
-                        case ClientLanguage.English:
-
-                            url = "https://eu.finalfantasyxiv.com/lodestone/news/detail/";
-                            break;
-
-                        case ClientLanguage.German:
-
-                            url = "https://de.finalfantasyxiv.com/lodestone/news/detail/";
-                            break;
-
-                        case ClientLanguage.French:
-
-                            url = "https://fr.finalfantasyxiv.com/lodestone/news/detail/";
-                            break;
-
-                        default:
-
-                            url = "https://eu.finalfantasyxiv.com/lodestone/news/detail/";
-                            break;
-                    }
-
-                    Process.Start(url + item.Id);
-                }
+                Process.Start(url + item.Id);
             }
         }
 

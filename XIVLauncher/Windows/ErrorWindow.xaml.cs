@@ -31,7 +31,7 @@ namespace XIVLauncher.Windows
 
             #if DEBUG
             ExceptionTextBox.AppendText("\nDebugging");
-            #endif
+#endif
 
             ContextTextBlock.Text = message;
 

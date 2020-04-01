@@ -204,7 +204,7 @@ namespace XIVLauncher.Windows
             }
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
-                App.Settings.AutologinEnabled = false;
+                _setting.AutologinEnabled = false;
                 AutoLoginCheckBox.IsChecked = false;
             }
 
